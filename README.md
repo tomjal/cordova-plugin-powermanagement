@@ -2,6 +2,9 @@ PowerManagement
 ===============
 Plugin for Cordova (3.0+)
 
+changed SCREEN_DIM_WAKE_LOCK to PARTIAL_WAKE_LOCK
+=================================================
+
 The PowerManagement plugin offers access to the devices power-management functionality.
 It should be used for applications which keep running for a long time without any user interaction.
 
@@ -15,7 +18,7 @@ Installation
 ---------
 Install the plugin using the cordova command line utility:
 
-`$ cordova plugin add https://github.com/Viras-/cordova-plugin-powermanagement.git`
+`$ cordova plugin add https://github.com/boltex/cordova-plugin-powermanagement.git`
 
 Usage
 -----
