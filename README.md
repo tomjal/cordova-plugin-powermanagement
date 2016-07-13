@@ -1,8 +1,8 @@
-PowerManagement
+PowerManagementWifi+
 ===============
 Plugin for Cordova (3.0+)
 
-changed SCREEN_DIM_WAKE_LOCK to PARTIAL_WAKE_LOCK
+with WifiLock
 =================================================
 
 The PowerManagement plugin offers access to the devices power-management functionality.
@@ -18,10 +18,19 @@ Installation
 ---------
 Install the plugin using the cordova command line utility:
 
-`$ cordova plugin add https://github.com/boltex/cordova-plugin-powermanagement.git`
+`$ cordova plugin add https://github.com/tomjal/cordova-plugin-powermanagement.git`
 
 Usage
 -----
+
+### window.powerManagement.wifi(successCallback, failureCallback)
+Acquire a wifi lock by calling this.
+
+	window.powerManagement.acquire(function() {
+		console.log('Wifilock acquired');
+	}, function() {
+		console.log('Failed to acquire wifilock');
+	});
 
 ### window.powerManagement.acquire(successCallback, failureCallback)
 Acquire a wakelock by calling this.
@@ -63,7 +72,6 @@ Note that in all the above examples, all callbacks are optional.
 
 License
 =======
-Copyright 2013 Wolfgang Koller
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
