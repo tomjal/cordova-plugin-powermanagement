@@ -1,6 +1,4 @@
 /*
- * Copyright 2013-2014 Wolfgang Koller
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,10 +12,6 @@
  * limitations under the License.
  */
 
-/**
- * Cordova (Android) plugin for accessing the power-management functions of the device
- * @author Wolfgang Koller <viras@users.sourceforge.net>
- */
 package org.apache.cordova.powermanagement;
 
 import org.json.JSONArray;
@@ -25,6 +19,9 @@ import org.json.JSONException;
 
 import android.content.Context;
 import android.os.PowerManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.util.Log;
 
 import org.apache.cordova.CordovaWebView;
@@ -43,6 +40,9 @@ public class PowerManagement extends CordovaPlugin {
 	private PowerManager powerManager = null;
 	private boolean releaseOnPause = true;
 
+	private WifiManager wifiManager = null;
+	private WifiLock wifiLock = null;
+
 	/**
 	 * Fetch a reference to the power-service when the plugin is initialized
 	 */
@@ -51,6 +51,10 @@ public class PowerManagement extends CordovaPlugin {
 		super.initialize(cordova, webView);
 
 		this.powerManager = (PowerManager) cordova.getActivity().getSystemService(Context.POWER_SERVICE);
+
+		Context context = cordova.getActivity().getApplicationContext();
+		this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 	}
 
 	@Override
@@ -97,19 +101,22 @@ public class PowerManagement extends CordovaPlugin {
 	private PluginResult acquire( int p_flags ) {
 		PluginResult result = null;
 
-		if (this.wakeLock == null) {
+		if (this.wakeLock == null && this.wifiLock == null) {
 			this.wakeLock = this.powerManager.newWakeLock(p_flags, "PowerManagementPlugin");
+			this.wifiLock = this.wifiManager.createWifiLock("wifiLock");
 			try {
 				this.wakeLock.acquire();
+				this.wifiLock.acquire();
 				result = new PluginResult(PluginResult.Status.OK);
 			}
 			catch( Exception e ) {
 				this.wakeLock = null;
-				result = new PluginResult(PluginResult.Status.ERROR,"Can't acquire wake-lock - check your permissions!");
+				this.wifiLock = null;
+				result = new PluginResult(PluginResult.Status.ERROR,"Can't acquire wake or wifi lock - check your permissions!");
 			}
 		}
 		else {
-			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION,"WakeLock already active - release first");
+			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION,"WakeLock or wifi lock already active - release first");
 		}
 
 		return result;
@@ -122,19 +129,21 @@ public class PowerManagement extends CordovaPlugin {
 	private PluginResult release() {
 		PluginResult result = null;
 
-		if( this.wakeLock != null ) {
+		if( this.wakeLock != null || this.wifiLock != null) {
 			try {
 				this.wakeLock.release();
+				this.wifiLock.release();
 				result = new PluginResult(PluginResult.Status.OK, "OK");
 			}
 			catch (Exception e) {
-				result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "WakeLock already released");
+				result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "WakeLock or wifi lock already released");
 			}
 
 			this.wakeLock = null;
+			this.wifiLock = null;
 		}
 		else {
-			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "No WakeLock active - acquire first");
+			result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION, "No WakeLock or wifi lock active - acquire first");
 		}
 
 		return result;
@@ -149,6 +158,10 @@ public class PowerManagement extends CordovaPlugin {
 			this.wakeLock.release();
 		}
 
+		if( this.releaseOnPause && this.wifiLock != null ) {
+			this.wifiLock.release();
+		}
+
 		super.onPause(multitasking);
 	}
 
@@ -159,6 +172,10 @@ public class PowerManagement extends CordovaPlugin {
 	public void onResume(boolean multitasking) {
 		if( this.releaseOnPause && this.wakeLock != null ) {
 			this.wakeLock.acquire();
+		}
+
+		if( this.releaseOnPause && this.wifiLock != null ) {
+			this.wifiLock.acquire();
 		}
 
 		super.onResume(multitasking);
