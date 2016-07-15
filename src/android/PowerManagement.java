@@ -42,7 +42,7 @@ public class PowerManagement extends CordovaPlugin {
 
 	private WifiManager wifiManager = null;
 	private WifiLock wifiLock = null;
-	private CordovaWebView cordweb = null;
+	//private CordovaWebView cordweb = null;
 
 	/**
 	 * Fetch a reference to the power-service when the plugin is initialized
@@ -57,11 +57,11 @@ public class PowerManagement extends CordovaPlugin {
 		this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		
-		this.cordweb = webView;
-		this.cordweb.addJavascriptInterface(this, "android");
-		this.cordweb.getSettings().setJavaScriptEnabled(true);
+		//this.cordweb = webView;
+		//this.cordweb.addJavascriptInterface(this, "android");
+		//this.cordweb.getSettings().setJavaScriptEnabled(true);
 		//this.cordweb.setWebViewClient(new MyWebViewClient());
-    	//this.cordweb.setWebChromeClient(new MyWebChromeClient());
+    		//this.cordweb.setWebChromeClient(new MyWebChromeClient());
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public class PowerManagement extends CordovaPlugin {
 			try {
 				this.wakeLock.acquire();
 				this.wifiLock.acquire();
-				this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW LOCKS OK');", null);
+				//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW LOCKS OK');", null);
 				result = new PluginResult(PluginResult.Status.OK);
 			}
 			catch( Exception e ) {
@@ -141,7 +141,7 @@ public class PowerManagement extends CordovaPlugin {
 			try {
 				this.wakeLock.release();
 				this.wifiLock.release();
-				this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW LOCKS RELEASED');", null);
+				//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW LOCKS RELEASED');", null);
 				result = new PluginResult(PluginResult.Status.OK, "OK");
 			}
 			catch (Exception e) {
@@ -165,12 +165,12 @@ public class PowerManagement extends CordovaPlugin {
 	public void onPause(boolean multitasking) {
 		if( this.releaseOnPause && this.wakeLock != null ) {
 			this.wakeLock.release();
-			this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WAKELOCK RELEASE');", null);
+			//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WAKELOCK RELEASE');", null);
 		}
 
 		if( this.releaseOnPause && this.wifiLock != null ) {
 			this.wifiLock.release();
-			this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WIFI LOCK RELEASE');", null);
+			//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WIFI LOCK RELEASE');", null);
 		}
 
 		super.onPause(multitasking);
@@ -183,12 +183,12 @@ public class PowerManagement extends CordovaPlugin {
 	public void onResume(boolean multitasking) {
 		if( this.releaseOnPause && this.wakeLock != null ) {
 			this.wakeLock.acquire();
-			this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WAKELOCK OK');", null);
+			//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WAKELOCK OK');", null);
 		}
 
 		if( this.releaseOnPause && this.wifiLock != null ) {
 			this.wifiLock.acquire();
-			this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WIFI LOCK OK');", null);
+			//this.cordweb.evaluateJavascript("console.log('CORDOVA WEBVIEW WIFI LOCK OK');", null);
 		}
 
 		super.onResume(multitasking);
